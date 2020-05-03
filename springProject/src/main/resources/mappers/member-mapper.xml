@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="memberMapper">
+
+	<resultMap type="Member" id="memberResultSet">
+		<!-- property : vo클래스의 필드명 / column : DB조회된 컬럼명 -->
+		<id property="userId" column="user_id" />
+		<result property="userPwd" column="user_pwd" />
+		<result property="userName" column="user_name" />
+		<result property="email" column="email" />
+		<result property="gender" column="gender" />
+		<result property="age" column="age" />
+		<result property="phone" column="phone" />
+		<result property="address" column="address" />
+		<result property="enrollDate" column="enroll_date" />
+		<result property="modifyDate" column="modify_date" />
+		<result property="status" column="status" />
+	</resultMap>
+	
+	<select id="loginMember" parameterType="Member" resultMap="memberResultSet">
+		<!-- 암호화 처리 전  
+		select * from member
+		where user_id=#{userId} and user_pwd=#{userPwd} and status='Y'
+		-->
+		select * from member
+		where user_id=#{userId} and status='Y'
+	</select>
+	
+	<insert id="insertMember" parameterType="Member">
+		insert into member
+		values(#{userId}, #{userPwd}, #{userName}, #{email}, #{gender}, #{age},
+			   #{phone}, #{address}, default, default, default)
+	</insert>
+	
+	<update id="updateMember" parameterType="Member">
+		update member
+		set email=#{email}, age=#{age}, phone=#{phone}, 
+			address=#{address}, gender=#{gender}, modify_date=sysdate
+		where user_id=#{userId}
+	</update>
+	
+	<update id="deleteMember" parameterType="string">
+		update member
+		set status='N'
+		where user_id=#{userId}
+	</update>
+	
+	<select id="idCheck" resultType="_int">
+		select count(*)
+		from member
+		where user_id=#{userId}
+	</select>
+</mapper>

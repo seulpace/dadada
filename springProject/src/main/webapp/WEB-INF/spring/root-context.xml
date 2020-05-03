@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	
+	<!-- 
+		* root-context.xml
+		  서버 구동 시 web.xml을 거쳐 바로 로딩되는 문서 (설정 파일)
+		  따라서, 서버 구동 시 바로 세팅해야 되는 (빈으로 등록할) 내용을 작성하는 문서
+		  주로 DB 연결 설정, 트랜잭션 처리, 내외부 모듈 연동 등등
+	 -->
+	 
+	 <!-- DB와 연동된 객체를 빈으로 등록시키는 구문 -->
+	 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+	 	<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+	 	<property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>
+	 	<property name="username" value="spring"/>
+	 	<property name="password" value="spring"/>
+	 	<property name="defaultAutoCommit" value="false"/>
+	 </bean>
+	 <!-- 
+	 	BasicDatatSource dataSource = new BasicDataSource();
+	  -->
+	 
+	 <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+	 	<!-- mybatis-config.xml 문서 불러들이기 위한 경로 제시 -->
+	 	<property name="configLocation" value="classpath:mybatis-config.xml" />
+	 	<property name="dataSource" ref="dataSource"/>
+	 </bean>
+	 <!-- 
+	 	SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
+	 	sqlSessionFactory.setConfigLocation("classpath:mybatis-config.xml");
+	 	sqlSessionFactory.setDataSource(dataSource);
+	  -->
+	 <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+	 	<constructor-arg ref="sqlSessionFactory" />
+	 </bean>
+	 
+	 <!-- 
+	 	* bean 등록 시
+	 	- property 태그를 통하면 => setter 주입
+	 	- constructor-arg 태그를 통하면 => 생성자 주입
+	  -->
+	  
+	 <!-- * 파일업로드 시 등록해야 되는 구문 (전송되는 파일 용량 제한) -->
+	 <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	 	<property name="maxUploadSize" value="10000000"/>
+	 	<property name="maxInMemorySize" value="10000000"/>
+	 </bean>
+	 
+</beans>

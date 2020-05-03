@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="boardMapper">
+
+	<resultMap id="boardResultSet" type="Board">
+		<id column="board_no" property="boardNo" />
+		<result column="board_title" property="boardTitle" />
+		<result column="board_writer" property="boardWriter" />
+		<result column="board_content" property="boardContent" />
+		<result column="origin_name" property="originName" />
+		<result column="change_name" property="changeName" />
+		<result column="count" property="count" />
+		<result column="create_date" property="createDate" />
+		<result column="status" property="status" />
+	</resultMap>
+	
+	<resultMap id="replyResultSet" type="Reply">
+		<id column="reply_no" property="replyNo"/>
+		<result column="reply_content" property="replyContent"/>
+		<result column="ref_bno" property="refBoardNo"/>
+		<result column="reply_writer" property="replyWriter"/>
+		<result column="create_date" property="createDate"/>
+		<result column="status" property="status"/>
+	</resultMap>
+
+	<select id="getListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM BOARD
+		WHERE STATUS='Y'
+	</select>
+	
+	<select id="selectList" resultMap="boardResultSet">
+		select * 
+		from board
+		where status = 'Y'
+		order by board_no desc
+	</select>
+	
+	<insert id="insertBoard" parameterType="Board">
+		insert into board
+		values(seq_bno.nextval, #{boardTitle}, #{boardWriter}, #{boardContent},
+				#{originName}, #{changeName}, default, default, default)
+	</insert>
+	
+	<!-- 사실 파라미터 타입 지정 안 해줘도 알아서 잘 들고온다고 함 ㅎㅎ -->
+	<update id="increaseCount" parameterType="_int">
+		update board
+		set count = count + 1
+		where board_no = #{bno} and status='Y'
+	</update>
+	
+	<select id="selectBoard" parameterType="_int" resultMap="boardResultSet">
+		select *
+		from board
+		where board_no = #{bno} and status='Y'
+	</select>
+	
+	<update id="deleteBoard" parameterType="_int">
+		update board
+		set status = 'N'
+		where board_no = #{bno}
+	</update>
+	
+	<update id="updateBoard" parameterType="Board">
+		update board
+		set board_title=#{boardTitle},
+		    board_content=#{boardContent},
+		    origin_name=#{originName},
+		    change_name=#{changeName}
+		where board_no=#{boardNo}
+	</update>
+	
+	<select id="selectReplyList" resultMap="replyResultSet">
+		select reply_no, reply_content, ref_bno, 
+			   reply_writer, create_date, status
+		  from reply
+		 where ref_bno=#{bno} and status='Y'
+		 order by reply_no desc
+	</select>
+	
+	<insert id="insertReply" parameterType="Reply">
+		insert into reply
+		values(seq_rno.nextval, #{replyContent}, #{refBoardNo}, #{replyWriter}, sysdate, default)
+	</insert>
+
+</mapper>
